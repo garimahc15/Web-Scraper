@@ -21,25 +21,6 @@ from patch import download_latest_chromedriver, webdriver_folder_name
 def delay(waiting_time=5):
     driver.implicitly_wait(waiting_time)
 
-def create_tor_proxy(socks_port,control_port):
-    TOR_PATH = os.path.normpath(os.getcwd()+"\\tor\\tor.exe")
-    try:
-        tor_process = stem.process.launch_tor_with_config(
-          config = {
-            'SocksPort': str(socks_port),
-            'ControlPort' : str(control_port),
-            'MaxCircuitDirtiness' : '300',
-          },
-          init_msg_handler = lambda line: print(line) if re.search('Bootstrapped', line) else False,
-          tor_cmd = TOR_PATH
-        )
-        print("[INFO] Tor connection created.")
-    except:
-        tor_process = None
-        print("[INFO] Using existing tor connection.")
-    
-    return tor_process
-
     
 if __name__ == "__main__":
     SOCKS_PORT = 41293
@@ -50,8 +31,7 @@ if __name__ == "__main__":
                     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:77.0) Gecko/20100101 Firefox/77.0',
                     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36',
                     ]
-    activate_tor = False
-    tor_process = None
+
     user_agent = random.choice(USER_AGENT_LIST)
     
     response = requests.get("http://ip-api.com/json/")
@@ -139,7 +119,7 @@ if __name__ == "__main__":
         # download the mp3 audio file from the source
         urllib.request.urlretrieve(src, path_to_mp3)
     except:
-        # if ip is blocked.. renew tor ip
+        # if ip is blocked
         print("[INFO] IP address has been blocked for recaptcha.")
         sys.exit()    
 
@@ -170,6 +150,5 @@ if __name__ == "__main__":
     driver.switch_to.default_content()
     time.sleep(5)
     driver.find_element_by_name("submit").click()
-    if (tor_process):
-        tor_process.kill()
+    
     
